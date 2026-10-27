@@ -19,6 +19,7 @@ const ChicoTermos = lazy(() => import('./pages/ChicoTermos'));
 
 // Landing de anúncio: formulário de diagnóstico (/diagnostico)
 const Diagnostico = lazy(() => import('./pages/Diagnostico'));
+const Privacidade = lazy(() => import('./pages/Privacidade'));
 
 // Simple, non-blocking visual skeleton for progressive loading
 function SectionPlaceholder() {
@@ -38,6 +39,17 @@ function AppContent() {
       <div className="relative min-h-screen bg-[#050607] text-[#F0EEE8] font-sans antialiased selection:bg-[#B7FF00] selection:text-[#050607] overflow-x-clip w-full">
         <Suspense fallback={<SectionPlaceholder />}>
           <Diagnostico />
+        </Suspense>
+      </div>
+    );
+  }
+
+  // Política de privacidade do site e dos anúncios (/privacidade)
+  if (pathname === '/privacidade') {
+    return (
+      <div className="relative min-h-screen bg-[#050607] text-[#F0EEE8] font-sans antialiased selection:bg-[#B7FF00] selection:text-[#050607] overflow-x-clip w-full">
+        <Suspense fallback={<SectionPlaceholder />}>
+          <Privacidade />
         </Suspense>
       </div>
     );

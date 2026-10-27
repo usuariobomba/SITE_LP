@@ -5,6 +5,7 @@ import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
 import crypto from 'crypto';
 import { renderChicoRoute, CHICO_ROUTES } from './src/prerender/renderPages';
+import { registerLeadRoutes } from './server/leads';
 
 const app = express();
 const PORT = 3000;
@@ -386,6 +387,8 @@ function renderChicoHtml(template: string, urlPath: string): string | null {
   pageHtml = pageHtml.replace('<div id="root"></div>', `<div id="root">${result.html}</div>`);
   return pageHtml;
 }
+
+registerLeadRoutes(app, getGemini, checkRateLimit);
 
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {

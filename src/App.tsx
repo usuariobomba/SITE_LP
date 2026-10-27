@@ -17,6 +17,9 @@ const ChicoHome = lazy(() => import('./pages/ChicoHome'));
 const ChicoPrivacidade = lazy(() => import('./pages/ChicoPrivacidade'));
 const ChicoTermos = lazy(() => import('./pages/ChicoTermos'));
 
+// Landing de anúncio: formulário de diagnóstico (/diagnostico)
+const Diagnostico = lazy(() => import('./pages/Diagnostico'));
+
 // Simple, non-blocking visual skeleton for progressive loading
 function SectionPlaceholder() {
   return (
@@ -28,6 +31,17 @@ function SectionPlaceholder() {
 
 function AppContent() {
   const { pathname } = useRouter();
+
+  // Route 0: Formulário de diagnóstico para anúncios (/diagnostico)
+  if (pathname === '/diagnostico') {
+    return (
+      <div className="relative min-h-screen bg-[#050607] text-[#F0EEE8] font-sans antialiased selection:bg-[#B7FF00] selection:text-[#050607] overflow-x-clip w-full">
+        <Suspense fallback={<SectionPlaceholder />}>
+          <Diagnostico />
+        </Suspense>
+      </div>
+    );
+  }
 
   // Route 1: Chico Product Home (/chico)
   if (pathname === '/chico') {

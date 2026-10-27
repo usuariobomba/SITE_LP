@@ -22,7 +22,11 @@ export type AnalyticsEvent =
   | { name: 'diagnosis_step_answered'; params: { step: number; length: number } }
   | { name: 'diagnosis_completed'; params: { total_steps: number; id: string } }
   | { name: 'diagnosis_restarted'; params: Record<string, never> }
-  | { name: 'diagnosis_whatsapp_cta'; params: { id: string } };
+  | { name: 'diagnosis_whatsapp_cta'; params: { id: string } }
+  | { name: 'lead_form_start'; params: Record<string, never> }
+  | { name: 'lead_form_step'; params: { step: number } }
+  | { name: 'lead_form_submit'; params: { faixa_horas: string } }
+  | { name: 'lead_form_whatsapp_click'; params: Record<string, never> };
 
 export function trackEvent(event: AnalyticsEvent) {
   if (typeof window !== 'undefined' && typeof window.gtag === 'function') {

@@ -1,0 +1,605 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Space Grotesk", sans-serif;
+  --font-impact: "Inter Tight", sans-serif;
+  --font-sans: "Inter", sans-serif;
+  --font-marker: "Permanent Marker", cursive;
+  --font-script: "Permanent Marker", cursive;
+  --font-tech: "Oxanium", monospace, sans-serif;
+  --font-mono: "Oxanium", monospace, sans-serif;
+
+  --color-brand-black: #050607;
+  --color-brand-card: #0B0E12;
+  --color-brand-border: #1F2630;
+  --color-brand-white: #F0EEE8;
+  --color-brand-gray: #9A9D9F;
+  --color-brand-muted: #5A5C5E;
+  --color-brand-lime: #B7FF00;
+  --color-brand-violet: #7557FF;
+}
+
+@theme inline {
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background-color: #050607;
+    color: var(--color-brand-white);
+    margin: 0;
+    padding: 0;
+    overflow-x: clip;
+  }
+  
+  body {
+    background-color: #050607;
+    color: var(--color-brand-white);
+    margin: 0;
+    padding: 0;
+    overflow-x: clip;
+    width: 100%;
+  }
+
+  #root {
+    background-color: #050607;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: clip;
+  }
+  
+  p {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+}
+
+.mobile-hero-art {
+  position: relative;
+  width: calc(100% + 40px);
+  margin-left: -20px;
+  margin-right: -20px;
+  height: 200px;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  background: transparent;
+}
+
+@media (min-width: 640px) {
+  .mobile-hero-art {
+    width: calc(100% + 48px);
+    margin-left: -24px;
+    margin-right: -24px;
+    height: 220px;
+  }
+}
+
+@layer utilities {
+  .font-impact {
+    font-family: var(--font-impact);
+    font-weight: 900;
+  }
+  .font-marker {
+    font-family: var(--font-marker);
+  }
+  .font-script {
+    font-family: var(--font-marker);
+  }
+  .font-tech {
+    font-family: var(--font-tech);
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .snap-x-mandatory {
+    scroll-snap-type: x mandatory;
+  }
+  .snap-start {
+    scroll-snap-align: start;
+  }
+  .animate-float-1 {
+    animation: float-slow-1 5.5s ease-in-out infinite;
+  }
+  .animate-float-2 {
+    animation: float-slow-2 7s ease-in-out infinite;
+  }
+  .animate-float-3 {
+    animation: float-slow-3 6.2s ease-in-out infinite;
+  }
+  .animate-float-4 {
+    animation: float-slow-1 8s ease-in-out infinite reverse;
+  }
+}
+
+@keyframes float-slow-1 {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(4deg);
+  }
+}
+
+@keyframes float-slow-2 {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(16px) rotate(-6deg);
+  }
+}
+
+@keyframes float-slow-3 {
+  0%, 100% {
+    transform: translateY(0px) scale(1) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) scale(1.04) rotate(3deg);
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-reverse {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-reverse-slow {
+  0% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+}
+
+.animate-marquee-reverse {
+  display: flex;
+  width: max-content;
+  animation: marquee-reverse 40s linear infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 25s linear infinite;
+}
+
+.animate-spin-reverse-slow {
+  animation: spin-reverse-slow 20s linear infinite;
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 4s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none !important;
+    flex-wrap: wrap;
+    white-space: normal;
+    gap: 1.5rem;
+  }
+  .animate-spin-slow,
+  .animate-spin-reverse-slow,
+  .animate-pulse-subtle,
+  .animate-float {
+    animation: none !important;
+  }
+}
+
+/* Custom scrollbar to keep it looking premium and integrated */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #08090A;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1F2225;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2C3034;
+}
+
+/* Elegant text reveal or line animation classes */
+.line-draw {
+  position: relative;
+}
+.line-draw::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.line-draw:hover::after {
+  transform: scaleX(1);
+}
+
+/* 3D Interactive Cards Style */
+.parent {
+  width: 100%;
+  max-width: 320px;
+  height: 320px;
+  perspective: 1000px;
+}
+
+.card {
+  height: 100%;
+  border-radius: 40px;
+  background: linear-gradient(135deg, rgb(117, 87, 255) 0%, rgb(0, 229, 255) 100%);
+  transition: all 0.5s ease-in-out;
+  transform-style: preserve-3d;
+  box-shadow: rgba(0, 0, 0, 0) 40px 50px 25px -40px, rgba(117, 87, 255, 0.25) 0px 25px 25px -5px;
+}
+
+.glass {
+  transform-style: preserve-3d;
+  position: absolute;
+  inset: 8px;
+  border-radius: 45px;
+  border-top-right-radius: 80px;
+  background: linear-gradient(0deg, rgba(20, 22, 25, 0.88) 0%, rgba(14, 16, 18, 0.95) 100%);
+  transform: translate3d(0px, 0px, 25px);
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.5s ease-in-out;
+}
+
+.content {
+  padding: 50px 30px 0px 30px;
+  transform: translate3d(0, 0, 26px);
+}
+
+.content .title {
+  display: block;
+  color: #F0EEE8;
+  font-weight: 900;
+  font-size: 18px;
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+.content .text {
+  display: block;
+  color: #9A9D9F;
+  font-size: 13px;
+  margin-top: 15px;
+  line-height: 1.5;
+  font-family: var(--font-sans);
+}
+
+.bottom {
+  padding: 10px 12px;
+  transform-style: preserve-3d;
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transform: translate3d(0, 0, 26px);
+}
+
+.bottom .view-more {
+  display: flex;
+  align-items: center;
+  width: 40%;
+  justify-content: flex-end;
+  transition: all 0.2s ease-in-out;
+}
+
+.bottom .view-more:hover {
+  transform: translate3d(0, 0, 10px);
+}
+
+.bottom .view-more .view-more-button {
+  background: none;
+  border: none;
+  color: #C6FF3D;
+  font-weight: bolder;
+  font-size: 12px;
+}
+
+.bottom .social-buttons-container {
+  display: flex;
+  gap: 10px;
+  transform-style: preserve-3d;
+}
+
+.bottom .social-buttons-container .social-button {
+  width: 32px;
+  aspect-ratio: 1;
+  padding: 5px;
+  background: #1F2225;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.1);
+  display: grid;
+  place-content: center;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 7px 5px -5px;
+}
+
+.bottom .social-buttons-container .social-button:first-child {
+  transition: transform 0.2s ease-in-out 0.4s, box-shadow 0.2s ease-in-out 0.4s;
+}
+
+.bottom .social-buttons-container .social-button:nth-child(2) {
+  transition: transform 0.2s ease-in-out 0.6s, box-shadow 0.2s ease-in-out 0.6s;
+}
+
+.bottom .social-buttons-container .social-button:nth-child(3) {
+  transition: transform 0.2s ease-in-out 0.8s, box-shadow 0.2s ease-in-out 0.8s;
+}
+
+.bottom .social-buttons-container .social-button .svg {
+  width: 15px;
+  fill: #C6FF3D;
+}
+
+.bottom .social-buttons-container .social-button:hover {
+  background: #C6FF3D;
+}
+
+.bottom .social-buttons-container .social-button:hover .svg {
+  fill: #08090A;
+}
+
+.logo {
+  position: absolute;
+  right: 0;
+  top: 0;
+  transform-style: preserve-3d;
+}
+
+.logo .circle {
+  display: block;
+  position: absolute;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  top: 0;
+  right: 0;
+  box-shadow: rgba(0, 0, 0, 0.2) -10px 10px 20px 0px;
+  backdrop-filter: blur(5px);
+  background: rgba(117, 87, 255, 0.15);
+  transition: all 0.5s ease-in-out;
+}
+
+.logo .circle1 {
+  width: 140px;
+  transform: translate3d(0, 0, 20px);
+  top: 8px;
+  right: 8px;
+}
+
+.logo .circle2 {
+  width: 115px;
+  transform: translate3d(0, 0, 40px);
+  top: 10px;
+  right: 10px;
+  backdrop-filter: blur(1px);
+  transition-delay: 0.4s;
+}
+
+.logo .circle3 {
+  width: 90px;
+  transform: translate3d(0, 0, 60px);
+  top: 17px;
+  right: 17px;
+  transition-delay: 0.8s;
+}
+
+.logo .circle4 {
+  width: 65px;
+  transform: translate3d(0, 0, 80px);
+  top: 23px;
+  right: 23px;
+  transition-delay: 1.2s;
+}
+
+.logo .circle5 {
+  width: 40px;
+  transform: translate3d(0, 0, 100px);
+  top: 30px;
+  right: 30px;
+  display: grid;
+  place-content: center;
+  transition-delay: 1.6s;
+}
+
+.logo .circle5 .svg {
+  width: 18px;
+  fill: #C6FF3D;
+}
+
+.parent:hover .card {
+  transform: rotate3d(1, 1, 0, 20deg);
+  box-shadow: rgba(117, 87, 255, 0.2) 30px 50px 25px -40px, rgba(0, 229, 255, 0.1) 0px 25px 30px 0px;
+}
+
+.parent:hover .card .bottom .social-buttons-container .social-button {
+  transform: translate3d(0, 0, 40px);
+}
+
+.parent:hover .card .logo .circle2 {
+  transform: translate3d(0, 0, 50px);
+}
+
+.parent:hover .card .logo .circle3 {
+  transform: translate3d(0, 0, 70px);
+}
+
+.parent:hover .card .logo .circle4 {
+  transform: translate3d(0, 0, 90px);
+}
+
+.parent:hover .card .logo .circle5 {
+  transform: translate3d(0, 0, 110px);
+}
+
+@keyframes glitch-anim {
+  0% {
+    clip: rect(31px, 9999px, 94px, 0);
+    transform: skew(0.3deg);
+  }
+  10% {
+    clip: rect(112px, 9999px, 76px, 0);
+    transform: skew(0.8deg);
+  }
+  20% {
+    clip: rect(85px, 9999px, 14px, 0);
+    transform: skew(0.2deg);
+  }
+  30% {
+    clip: rect(27px, 9999px, 110px, 0);
+    transform: skew(0.9deg);
+  }
+  40% {
+    clip: rect(62px, 9999px, 45px, 0);
+    transform: skew(0.4deg);
+  }
+  50% {
+    clip: rect(102px, 9999px, 120px, 0);
+    transform: skew(0.7deg);
+  }
+  60% {
+    clip: rect(15px, 9999px, 85px, 0);
+    transform: skew(0.1deg);
+  }
+  70% {
+    clip: rect(95px, 9999px, 50px, 0);
+    transform: skew(0.6deg);
+  }
+  80% {
+    clip: rect(44px, 9999px, 98px, 0);
+    transform: skew(0.5deg);
+  }
+  90% {
+    clip: rect(78px, 9999px, 32px, 0);
+    transform: skew(0.8deg);
+  }
+  100% {
+    clip: rect(12px, 9999px, 64px, 0);
+    transform: skew(0.3deg);
+  }
+}
+
+.glitch-wrapper {
+  position: relative;
+  display: inline-block;
+  color: #FF3E6C;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  text-shadow: 2px 2px 0px rgba(0, 229, 255, 0.4), -2px -2px 0px rgba(255, 62, 108, 0.6);
+  animation: glitch-jitter 0.8s infinite steps(2, start);
+}
+
+@keyframes glitch-jitter {
+  0% {
+    transform: translate(0, 0) skew(0deg);
+  }
+  20% {
+    transform: translate(-2px, 1px) skew(-5deg);
+  }
+  40% {
+    transform: translate(2px, -1px) skew(4deg);
+  }
+  60% {
+    transform: translate(-1px, -2px) skew(2deg);
+  }
+  80% {
+    transform: translate(1px, 2px) skew(-3deg);
+  }
+  100% {
+    transform: translate(0, 0) skew(0deg);
+  }
+}
+

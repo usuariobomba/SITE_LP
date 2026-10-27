@@ -1,0 +1,6 @@
+{
+  "name": "Lucas Prestes",
+  "description": "Sistemas, agentes e automações com IA desenvolvidos para eliminar trabalho manual, organizar operações e devolver tempo à sua empresa.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

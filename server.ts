@@ -4,7 +4,17 @@ import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
 import crypto from 'crypto';
-import { renderChicoRoute, CHICO_ROUTES } from './src/prerender/renderPages';
+
+const CHICO_PATHS = new Set(['/chico', '/chico/privacidade', '/chico/termos']);
+let cachedRenderChicoRoute: ((routePath: string) => { html: string; meta: { title: string; description: string; canonical: string } } | null) | null = null;
+
+async function getRenderChicoRoute() {
+  if (!cachedRenderChicoRoute) {
+    const mod = await import('./src/prerender/renderPages');
+    cachedRenderChicoRoute = mod.renderChicoRoute;
+  }
+  return cachedRenderChicoRoute;
+}
 
 const app = express();
 const PORT = 3000;
@@ -362,10 +372,11 @@ ${sanitizedData.deepeningAnswer ? `- Resposta extra: "${sanitizedData.deepeningA
 // =========================================================================
 // CHICO PRE-RENDERED PAGES HELPER & SERVER STARTUP
 // =========================================================================
-function renderChicoHtml(template: string, urlPath: string): string | null {
+async function renderChicoHtml(template: string, urlPath: string): Promise<string | null> {
   const normalized = urlPath.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/';
-  if (!CHICO_ROUTES[normalized]) return null;
+  if (!CHICO_PATHS.has(normalized)) return null;
 
+  const renderChicoRoute = await getRenderChicoRoute();
   const result = renderChicoRoute(normalized);
   if (!result) return null;
 
@@ -397,11 +408,11 @@ async function startServer() {
     // Serve pre-rendered HTML for Chico routes in dev
     app.use(async (req: Request, res: Response, next) => {
       const cleanPath = req.path.replace(/\/+$/, '') || '/';
-      if (CHICO_ROUTES[cleanPath]) {
+      if (CHICO_PATHS.has(cleanPath)) {
         try {
           const indexRaw = fs.readFileSync(path.resolve(process.cwd(), 'index.html'), 'utf-8');
           const transformed = await vite.transformIndexHtml(req.originalUrl, indexRaw);
-          const fullHtml = renderChicoHtml(transformed, cleanPath);
+          const fullHtml = await renderChicoHtml(transformed, cleanPath);
           if (fullHtml) {
             return res.status(200).set({ 'Content-Type': 'text/html' }).end(fullHtml);
           }
@@ -430,7 +441,7 @@ async function startServer() {
     const distPath = path.join(process.cwd(), 'dist');
 
     // Serve pre-rendered or SSR HTML for Chico routes in production
-    app.get(['/chico', '/chico/privacidade', '/chico/termos', '/chico/', '/chico/privacidade/', '/chico/termos/'], (req: Request, res: Response) => {
+    app.get(['/chico', '/chico/privacidade', '/chico/termos', '/chico/', '/chico/privacidade/', '/chico/termos/'], async (req: Request, res: Response) => {
       const cleanPath = req.path.replace(/\/+$/, '') || '/';
       const staticFile = path.join(distPath, cleanPath.replace(/^\//, ''), 'index.html');
       if (fs.existsSync(staticFile)) {
@@ -442,7 +453,7 @@ async function startServer() {
       }
       try {
         const template = fs.readFileSync(path.join(distPath, 'index.html'), 'utf-8');
-        const rendered = renderChicoHtml(template, cleanPath);
+        const rendered = await renderChicoHtml(template, cleanPath);
         if (rendered) {
           return res.status(200).set({ 'Content-Type': 'text/html' }).end(rendered);
         }
@@ -461,6 +472,9 @@ async function startServer() {
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
+    setTimeout(() => {
+      getRenderChicoRoute().catch(() => {});
+    }, 500);
   });
 }
 

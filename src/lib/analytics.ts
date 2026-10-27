@@ -5,6 +5,7 @@ declare global {
   interface Window {
     dataLayer?: any[];
     gtag?: (...args: any[]) => void;
+    fbq?: (...args: any[]) => void;
   }
 }
 
@@ -30,5 +31,9 @@ export type AnalyticsEvent =
 export function trackEvent(event: AnalyticsEvent) {
   if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
     window.gtag('event', event.name, event.params);
+  }
+  // Conversão no Meta: quem envia o formulário de diagnóstico vira um "Lead".
+  if (typeof window !== 'undefined' && typeof window.fbq === 'function' && event.name === 'lead_form_submit') {
+    window.fbq('track', 'Lead');
   }
 }

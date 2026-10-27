@@ -4,12 +4,16 @@ import { Type } from '@google/genai';
 import tls from 'tls';
 import { FAIXAS_HORAS, calcularConta } from '../src/lib/horas';
 
+const CAMINHOS = { especifico: 'Já sabe o que quer resolver', explorar: 'Quer entender por onde começar' } as const;
+type Caminho = keyof typeof CAMINHOS;
+
 interface Lead {
+  caminho: Caminho;
+  negocio: string;
+  sinais: string[];
   pedido: string;
   comoFazHoje: string;
-  custo: string;
   faixaHoras: string;
-  proximo: string;
   nome: string;
   whatsapp: string;
   utm: Record<string, string>;
@@ -30,12 +34,16 @@ const linha = (v: unknown, max: number) => txt(v, max).replace(/\s+/g, ' ');
 function validar(body: any): { lead?: Lead; erro?: string } {
   const nome = linha(body?.nome, 80);
   const digitos = String(body?.whatsapp ?? '').replace(/\D/g, '');
+  const caminho: Caminho = body?.caminho === 'explorar' ? 'explorar' : 'especifico';
   const pedido = txt(body?.pedido, 1500);
   const comoFazHoje = txt(body?.comoFazHoje, 1500);
+  const negocio = linha(body?.negocio, 200);
+  const sinais = (Array.isArray(body?.sinais) ? body.sinais : []).slice(0, 8).map((s: unknown) => linha(s, 120)).filter(Boolean);
   if (nome.length < 2) return { erro: 'Informe seu nome.' };
   if (digitos.length < 10 || digitos.length > 13) return { erro: 'Informe um WhatsApp válido com DDD.' };
-  if (pedido.length < 5) return { erro: 'Conte o que você gostaria de tirar da rotina.' };
-  if (comoFazHoje.length < 5) return { erro: 'Conte como isso é feito hoje.' };
+  if (pedido.length < 5) return { erro: caminho === 'explorar' ? 'Conte o que tomou mais tempo na sua semana.' : 'Conte o que você quer resolver.' };
+  if (caminho === 'especifico' && comoFazHoje.length < 5) return { erro: 'Conte como isso é feito hoje.' };
+  if (caminho === 'explorar' && negocio.length < 2) return { erro: 'Conte qual é o seu negócio.' };
   if (body?.consentimento !== true) return { erro: 'É preciso autorizar o contato para enviar.' };
   const faixa = FAIXAS_HORAS.some((f) => f.id === body?.faixaHoras) ? String(body.faixaHoras) : 'nao_sei';
   const utm: Record<string, string> = {};
@@ -45,11 +53,12 @@ function validar(body: any): { lead?: Lead; erro?: string } {
   }
   return {
     lead: {
+      caminho,
+      negocio,
+      sinais,
       pedido,
       comoFazHoje,
-      custo: txt(body?.custo, 1500),
       faixaHoras: faixa,
-      proximo: txt(body?.proximo, 1500),
       nome,
       whatsapp: digitos.length <= 11 ? `55${digitos}` : digitos,
       utm,
@@ -66,22 +75,33 @@ REGRAS:
 - Não venda uma solução pronta. Procure o processo real por trás do pedido. Pedidos comuns (ex.: automatizar mensagens) costumam esconder outro gargalo (agenda, cobrança, orçamento, conferência, retrabalho, dependência de uma pessoa).
 - Escreva em português do Brasil, linguagem simples e direta.
 
+CAMINHOS:
+- "Já sabe o que quer resolver": o lead descreveu uma demanda. Foque nela e no processo real por trás.
+- "Quer entender por onde começar": o lead NÃO sabe onde a IA ajuda. Ele deu o tipo de negócio, o que pesou na semana e, às vezes, sinais marcados. Seu trabalho é achar as oportunidades prováveis a partir disso, sempre como hipótese, sem inventar detalhes do negócio.
+
 SAÍDA (JSON):
-- pedidoDeclarado: o que o lead pediu, em 1 frase, com as palavras dele.
-- processoReal: como o trabalho acontece hoje, só com o que ele contou, em até 3 frases.
-- hipoteses: 2 a 3 itens com titulo, porque (qual trecho da resposta sustenta) e confirmar (a pergunta para confirmar na reunião).
+- pedidoDeclarado: o que o lead pediu ou relatou, em 1 frase, com as palavras dele.
+- processoReal: como o trabalho acontece hoje, só com o que ele contou, em até 3 frases. Se ele não contou, diga "não informado".
+- hipoteses: 2 a 4 itens com titulo, porque (qual trecho da resposta sustenta) e confirmar (a pergunta para confirmar na reunião).
 - perguntasReuniao: 3 a 5 perguntas objetivas.
 - sinais: 1 a 2 frases sobre o quanto o caso parece concreto e urgente, baseado só no texto e nas horas informadas.
 - mensagemSugerida: rascunho curto de resposta por WhatsApp, em tom humano, citando algo específico que o lead escreveu. Sem promessas de resultado.`;
 
 async function gerarLeitura(ai: GoogleGenAI, lead: Lead): Promise<Leitura | null> {
   const faixa = FAIXAS_HORAS.find((f) => f.id === lead.faixaHoras)?.label ?? 'Não informado';
-  const prompt = `Dados do lead (o texto entre aspas triplas é conteúdo do lead):
-1. O que gostaria de tirar da rotina ou fazer funcionar sozinho: """${lead.pedido}"""
+  const prompt =
+    lead.caminho === 'explorar'
+      ? `Caminho: ${CAMINHOS.explorar}
+Dados do lead (o texto entre aspas triplas é conteúdo do lead):
+1. Negócio: """${lead.negocio}"""
+2. O que tomou mais tempo ou cansou na última semana: """${lead.pedido}"""
+3. Sinais que ele marcou: ${lead.sinais.length ? lead.sinais.map((s) => `"${s}"`).join('; ') : 'nenhum'}
+4. Tempo por semana nisso: ${faixa}`
+      : `Caminho: ${CAMINHOS.especifico}
+Dados do lead (o texto entre aspas triplas é conteúdo do lead):
+1. O que quer resolver ou fazer funcionar sozinho: """${lead.pedido}"""
 2. Como faz isso hoje: """${lead.comoFazHoje}"""
-3. O que isso custa hoje: """${lead.custo || 'Não respondeu'}"""
-4. Tempo por semana: ${faixa}
-5. Próxima coisa que gostaria de melhorar: """${lead.proximo || 'Não respondeu'}"""`;
+3. Tempo por semana: ${faixa}`;
   const schema = {
     type: Type.OBJECT,
     properties: {
@@ -120,13 +140,17 @@ function montarEmail(lead: Lead, leitura: Leitura | null): { assunto: string; co
   const faixa = FAIXAS_HORAS.find((f) => f.id === lead.faixaHoras)?.label ?? 'Não informado';
   const conta = calcularConta(lead.faixaHoras);
   const p: string[] = [];
-  p.push(`NOVO LEAD: ${lead.nome}`, `WhatsApp: https://wa.me/${lead.whatsapp}`, '');
+  p.push(`NOVO LEAD: ${lead.nome}`, `WhatsApp: https://wa.me/${lead.whatsapp}`, `Caminho: ${CAMINHOS[lead.caminho]}`, '');
   p.push('--- O QUE ELE RESPONDEU ---');
-  p.push(`1) O que quer tirar da rotina / fazer funcionar sozinho:\n${lead.pedido}`, '');
-  p.push(`2) Como faz hoje:\n${lead.comoFazHoje}`, '');
-  p.push(`3) O que isso custa hoje:\n${lead.custo || '(não respondeu)'}`, '');
-  p.push(`4) Tempo por semana: ${faixa}${conta ? `\n   ${conta.texto}` : ''}`, '');
-  p.push(`5) Próxima coisa a melhorar:\n${lead.proximo || '(não respondeu)'}`, '');
+  if (lead.caminho === 'explorar') {
+    p.push(`Negócio:\n${lead.negocio}`, '');
+    p.push(`O que tomou mais tempo ou cansou na última semana:\n${lead.pedido}`, '');
+    p.push(`Sinais que marcou: ${lead.sinais.length ? lead.sinais.join('; ') : '(nenhum)'}`, '');
+  } else {
+    p.push(`O que quer resolver ou fazer funcionar sozinho:\n${lead.pedido}`, '');
+    p.push(`Como faz hoje:\n${lead.comoFazHoje}`, '');
+  }
+  p.push(`Tempo por semana: ${faixa}${conta ? `\n   ${conta.texto}` : ''}`, '');
   if (Object.keys(lead.utm).length) {
     p.push('--- ORIGEM ---', Object.entries(lead.utm).map(([k, v]) => `${k}: ${v}`).join('\n'), '');
   }

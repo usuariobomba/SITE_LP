@@ -4,7 +4,7 @@ import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
 import crypto from 'crypto';
-<<<<<<< HEAD
+import { registerLeadRoutes } from './server/leads';
 
 const CHICO_PATHS = new Set(['/chico', '/chico/privacidade', '/chico/termos']);
 let cachedRenderChicoRoute: ((routePath: string) => { html: string; meta: { title: string; description: string; canonical: string } } | null) | null = null;
@@ -16,10 +16,6 @@ async function getRenderChicoRoute() {
   }
   return cachedRenderChicoRoute;
 }
-=======
-import { renderChicoRoute, CHICO_ROUTES } from './src/prerender/renderPages';
-import { registerLeadRoutes } from './server/leads';
->>>>>>> 66999b8 (Adiciona formulário de diagnóstico (/diagnostico) com envio de lead por e-mail)
 
 const app = express();
 const PORT = 3000;
